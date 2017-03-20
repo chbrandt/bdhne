@@ -89,7 +89,7 @@
 
             <dbCore queriedTable="main">
                 <condDesc buildFrom="Instrument"/>
-                <condDesc buildFrom="energy"/>
+                <condDesc buildFrom="E_iso"/>
             </dbCore>
 
             <publish render="form" sets="local"/>
