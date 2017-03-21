@@ -17,14 +17,13 @@
         2017 in preparation
     </meta>
 
-    <table id="main" onDisk="True"
-        primary="id">
+    <table id="main" onDisk="True">
 
         <column name="id" type="text"
             ucd="meta.id;meta.main"
             description="GRB id"/>
 
-        <column name="Designation" type="text"
+        <column name="designation" type="text"
             ucd="meta.id"
             description="Designation"/>
 
@@ -76,24 +75,40 @@
 
     </table>
 
-        <data id="import">
-            <sources>data/data.csv</sources>
-            <csvGrammar/>
-            <make table="main">
-                <rowmaker idmaps="*"/>
-            </make>
-        </data>
+    <data id="import">
+        <sources>data/data.csv</sources>
+        <csvGrammar
+            delimiter=";"
+            preFilter="sed '/^#/d;s/\s\{1,\};\s\{1,\}/;/g'"
+        />
+        <make table="main">
+            <rowmaker idmaps="*"/>
+        </make>
+    </data>
 
-        <service id="web" allowed="form,static">
-            <meta name="shortName">BdHNe</meta>
+<!--
+<productCore queriedTable="main"/>
 
-            <dbCore queriedTable="main">
-                <condDesc buildFrom="Instrument"/>
-                <condDesc buildFrom="E_iso"/>
-            </dbCore>
+    <pythonCore>
+        <coreProc>
+            <code>
+                rows = [{"foo": 3*i, "bar": 8*i} for i in range(30)]
+                return rsc.TableForDef(self.outputTable, rows=rows)
+            </code>
+        </coreProc>
+    </pythonCore>
+    <publish render="static" sets="local"/>
+    </service>
 
-            <publish render="form" sets="local"/>
-            <outputTable verbLevel="20"/>
-        </service>
+-->
+    <service id="web" allowed="form,static">
+        <meta name="shortName">BdHNe</meta>
+        <dbCore queriedTable="main">
+            <condDesc buildFrom="id"/>
+            <condDesc buildFrom="E_iso"/>
+        </dbCore>
+        <publish render="form" sets="local"/>
+    </service>
+<!--            <outputTable verbLevel="20"/-->
 
 </resource>
