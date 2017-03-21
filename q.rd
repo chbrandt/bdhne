@@ -103,8 +103,9 @@
 -->
     <service id="web" allowed="form,static">
         <meta name="shortName">BdHNe</meta>
-        <dbCore queriedTable="main">
+        <dbCore queriedTable="main" limit="200">
             <condDesc buildFrom="id"/>
+            <condDesc buildFrom="z"/>
             <condDesc buildFrom="E_iso"/>
         </dbCore>
         <publish render="form" sets="local"/>
