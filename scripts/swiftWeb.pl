@@ -22,6 +22,21 @@ print "GRB $grb\n";
 my $trigger = _grbTrigger($grb);
 print "- Trigger number: $trigger\n";
 
+my $z = _redshift($grb);
+print "- Redshift: $z\n";
+
+my $nh = _nH($trigger);
+print "- NH: $nh\n";
+
+my $ra = -999;
+my $dec = -999;
+my @pos = _bestPos($trigger);
+if (@pos) {
+  ($ra,$dec) = @pos;
+}
+print "- RA: $ra\n";
+print "- Dec: $dec\n";
+
 # $h{'grb'} = $ARGV[0];
 # if (ok) {
 #   print "$_ $h{$_}\n" for (keys %h);
@@ -97,12 +112,12 @@ sub _redshift(){
         my $lastLetter = chop $grb;
         if (looks_like_number($lastLetter)) {
             $grb = $grb.$lastLetter.'A';
-            print "Change to search GRB $grb \n";
+            # print "Change to search GRB $grb \n";
             $redshift = $grbRedshift{$grb};
         }elsif($lastLetter ne 'A'){
             return 0;
         }else{
-            print "Change to search GRB $grb \n";
+            # print "Change to search GRB $grb \n";
             $redshift = $grbRedshift{$grb};
             return $redshift;
         }
@@ -195,10 +210,9 @@ sub _grbTrigger(){
 sub _nH(){
     my $trigger = shift;
     my $nH;
-    my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || warn "GET failed";
+    my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || '';
     foreach my $line (split("\n", $doc)) {
         if ($line =~ m/Galactic N/){
-            print $line
             $line =~/<td>(.+)&times;10<sup>(.+)<\/sup>\scm/;
             $line =~/<td>(.+)E(.+)\scm/ unless $1;
             $nH = $1*10**$2;
@@ -215,7 +229,6 @@ sub _nH(){
             last;
         }
     }
-    print $nH;
     return $nH if $nH;
 
 }
@@ -227,7 +240,7 @@ sub _bestPos(){
     my $trigger = shift;
     my $bestRa;
     my $bestDec;
-    my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || die "GET failed";
+    my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || return 0;#die "GET failed";
 
     foreach my $line (split("\n", $doc)) {
 
