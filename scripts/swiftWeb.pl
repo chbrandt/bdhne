@@ -5,7 +5,28 @@ use File::Basename;
 use File::Slurp qw(edit_file);
 use Scalar::Util qw(looks_like_number);
 
+# ---
+# Let's add CLI interface to those functions
+use Getopt::Long qw(:config bundling gnu_compat);
+GetOptions('help' => sub{ HelpMessage() });
 
+my $verbose = '';
+my $grb = '';
+# my %h = ('grb' => \$grb);
+GetOptions( 'grb' => \$grb
+          );
+
+$grb = $ARGV[0];
+print "GRB $grb\n";
+
+my $trigger = _grbTrigger($grb);
+print "- Trigger number: $trigger\n";
+
+# $h{'grb'} = $ARGV[0];
+# if (ok) {
+#   print "$_ $h{$_}\n" for (keys %h);
+# }
+# ---
 
 # download XRT WT and PC spectra from website
 # input: GRB name
@@ -70,8 +91,8 @@ sub _redshift(){
         $grbRedshift{@$_[0]} = @$_[1];
     }
     my $redshift = $grbRedshift{$grb};
-    
-    # missing or with A    
+
+    # missing or with A
     unless ($redshift) {
         my $lastLetter = chop $grb;
         if (looks_like_number($lastLetter)) {
@@ -86,7 +107,7 @@ sub _redshift(){
             return $redshift;
         }
     }
-    
+
     # find and output
     looks_like_number($redshift) ? return $redshift : return 0;
 }
@@ -110,8 +131,8 @@ sub _grbTrigger(){
 #        $grbToTrigger{@$_[1]} = @$_[0];
 #        $triggerToGrb{@$_[0]} = @$_[1];
 #    }
-#    
-#    # missing or with A for above method 
+#
+#    # missing or with A for above method
 #    unless ($grbToTrigger{$grb}) {
 #        my $lastLetter = chop $grb;
 #        if (looks_like_number($lastLetter)) {
@@ -122,20 +143,20 @@ sub _grbTrigger(){
 #        }else{
 #            print "Change to search GRB $grb \n";
 #        }
-    
+
     # if GRB is not triggered by Swift (also work for Swift trigger), try to find the tigger number from swift product page
     my $grb = shift;
-    
+
     my %grbToTrigger;
-    
+
     use LWP::UserAgent qw();
     my $ua = LWP::UserAgent->new;
     my $url = 'http://www.swift.ac.uk/burst_analyser/getBurst.php?name='.$grb;
     my $response = $ua->get($url);
     my $finalLink = $response->request->uri;
-    $grbToTrigger{$grb} = substr((split(/\//, $finalLink))[-1], 2);   
-    
-    # missing or with A for above method 
+    $grbToTrigger{$grb} = substr((split(/\//, $finalLink))[-1], 2);
+
+    # missing or with A for above method
     if ($grbToTrigger{$grb} =~ m/name/){
         my $lastLetter = chop $grb;
         if (looks_like_number($lastLetter)) {
@@ -144,7 +165,7 @@ sub _grbTrigger(){
             $url = 'http://www.swift.ac.uk/burst_analyser/getBurst.php?name='.$grb;
             $response = $ua->get($url);
             $finalLink = $response->request->uri;
-            $grbToTrigger{$grb} = substr((split(/\//, $finalLink))[-1], 2);   
+            $grbToTrigger{$grb} = substr((split(/\//, $finalLink))[-1], 2);
         }elsif($lastLetter ne 'A'){
             $grb = $grb.$lastLetter;
         }else{
@@ -155,16 +176,16 @@ sub _grbTrigger(){
             $grbToTrigger{$grb} = substr((split(/\//, $finalLink))[-1], 2);
         }
     }
-    
+
     return $grbToTrigger{$grb};
-    
+
     # convert and output, all the trigger numbers are bigger than 200000
 #    if (looks_like_number($grb) && $grb>200000){
 #        return $triggerToGrb{$$grb};
 #    }else{
 #        return $grbToTrigger{$$grb};
 #    }
-     
+
 }
 
 
@@ -174,7 +195,7 @@ sub _grbTrigger(){
 sub _nH(){
     my $trigger = shift;
     my $nH;
-    my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || warn "GET failed";      
+    my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || warn "GET failed";
     foreach my $line (split("\n", $doc)) {
         if ($line =~ m/Galactic N/){
             print $line
@@ -185,7 +206,7 @@ sub _nH(){
         }
     }
     return $nH if $nH;
-    
+
     $doc = get('http://www.swift.ac.uk/xrt_spectra/00'.$trigger) || die "GET failed";
     foreach my $line (split("\n", $doc)) {
         if ($line =~ m/Galactic/){
@@ -196,7 +217,7 @@ sub _nH(){
     }
     print $nH;
     return $nH if $nH;
-    
+
 }
 
 ## input: trigger Number
@@ -207,9 +228,9 @@ sub _bestPos(){
     my $bestRa;
     my $bestDec;
     my $doc = get('http://www.swift.ac.uk/grb_region/'.$trigger) || die "GET failed";
-    
+
     foreach my $line (split("\n", $doc)) {
-        
+
         if ($line =~ m/Best RA/){
             $line =~/=\s(.*)\sd/;
             $bestRa = $1;
@@ -218,7 +239,7 @@ sub _bestPos(){
             $line =~/=\s(.*)\sd/;
             $bestDec = $1;
             last;
-        } 
+        }
     }
     return ($bestRa, $bestDec);
 }
@@ -231,10 +252,10 @@ sub _fitPLWithRedshift(){
     my $dataFilename = shift;
     my $respFilename = shift;
     my $arfFilename = shift;
-    
+
     #my $path = dirname $dataFilename;
     my ($file,$path,$ext) = fileparse($dataFilename, qr/\.[^.]*/);
-    
+
     ## search websites to find trigger, redshift and nH
     print "Searching for redshift ...\n";
     my $redshift = &_redshift($grb);
@@ -267,16 +288,16 @@ sub _fitPLWithRedshift(){
     my $plotFigFilename = "$path\/$file.pl.eps";
     my $paramsFilename = "$path\/$file.params.pl.txt";
     my $paramsFitsFilename = "$path\/$file.params.pl.fits";
-    
+
     unlink $plotDataFilename if (-e $plotDataFilename);
     unlink $plotFigFilename if (-e $plotFigFilename);
     unlink $paramsFilename if (-e $paramsFilename);
     unlink $paramsFitsFilename if (-e $paramsFitsFilename);
-    
+
     ### generate XSPEC script
     my $xcmFilename = "$path\/$file.xcm";
     unlink $xcmFilename if (-e $xcmFilename);
-    
+
     open my $xcmFile, '>', "$xcmFilename";
     print $xcmFile "data $dataFilename\n";
     print $xcmFile "resp $respFilename\n";
@@ -325,14 +346,14 @@ sub _fitPLWithRedshift(){
     print $xcmFile "writefits $paramsFitsFilename\n";
     print $xcmFile "exit\n";
     close $xcmFile;
-    
+
     ### run xspec
     system "xspec - $xcmFilename";
 
     ### finish work
     # delete { } # symbols in output files
-    edit_file { tr/{}//d } $plotDataFilename; 
-    edit_file { tr/#//d } $paramsFilename;   
+    edit_file { tr/{}//d } $plotDataFilename;
+    edit_file { tr/#//d } $paramsFilename;
     system "clear";
     print "\n### Done ###\n";
     print "exported data point: $plotDataFilename \n";
@@ -350,9 +371,9 @@ sub _fitPL(){
     my $dataFilename = shift;
     my $respFilename = shift;
     my $arfFilename = shift;
-    
+
     my ($file,$path,$ext) = fileparse($dataFilename, qr/\.[^.]*/);
-    
+
     ## search websites to find trigger, redshift and nH
     print "Searching for trigger number ...\n";
     my $trigger = &_grbTrigger($grb);
@@ -362,22 +383,22 @@ sub _fitPL(){
     my $nH = &_nH($trigger)/1e22;
     die "No Trigger Number Found" unless $nH;
     print "nH: $nH\n";
-    
+
     ## names of output files
     my $plotDataFilename = "$path\/$grb.plot.pl.txt";
     my $plotFigFilename = "$path\/$grb.pl.eps";
     my $paramsFilename = "$path\/$grb.params.pl.txt";
     my $paramsFitsFilename = "$path\/$grb.params.pl.fits";
-    
+
     unlink $plotDataFilename if (-e $plotDataFilename);
     unlink $plotFigFilename if (-e $plotFigFilename);
     unlink $paramsFilename if (-e $paramsFilename);
     unlink $paramsFitsFilename if (-e $paramsFitsFilename);
-    
+
     ### generate XSPEC script
     my $xcmFilename = "$path\/$grb.xcm";
     unlink $xcmFilename if (-e $xcmFilename);
-    
+
     open my $xcmFile, '>', "$xcmFilename";
     print $xcmFile "data $dataFilename\n";
     print $xcmFile "resp $respFilename\n";
@@ -424,14 +445,14 @@ sub _fitPL(){
     print $xcmFile "writefits $paramsFitsFilename\n";
     print $xcmFile "exit\n";
     close $xcmFile;
-    
+
     ### run xspec
     system "xspec - $xcmFilename";
 
     ### finish work
     # delete { } # symbols in output files
-    edit_file { tr/{}//d } $plotDataFilename; 
-    edit_file { tr/#//d } $paramsFilename; 
+    edit_file { tr/{}//d } $plotDataFilename;
+    edit_file { tr/#//d } $paramsFilename;
     system "clear";
     print "\n### Done ###\n";
     print "exported data point: $plotDataFilename \n";
@@ -445,10 +466,10 @@ sub _fitPLBBWithRedshift(){
     my $dataFilename = shift;
     my $respFilename = shift;
     my $arfFilename = shift;
-    
+
     #my $path = dirname $dataFilename;
     my ($file,$path,$ext) = fileparse($dataFilename, qr/\.[^.]*/);
-    
+
     ## search websites to find trigger, redshift and nH
     print "Searching for redshift ...\n";
     my $redshift = &_redshift($grb);
@@ -481,16 +502,16 @@ sub _fitPLBBWithRedshift(){
     my $plotFigFilename = "$path\/$file.plbb.eps";
     my $paramsFilename = "$path\/$file.params.plbb.txt";
     my $paramsFitsFilename = "$path\/$file.params.plbb.fits";
-    
+
     unlink $plotDataFilename if (-e $plotDataFilename);
     unlink $plotFigFilename if (-e $plotFigFilename);
     unlink $paramsFilename if (-e $paramsFilename);
     unlink $paramsFitsFilename if (-e $paramsFitsFilename);
-    
+
     ### generate XSPEC script
     my $xcmFilename = "$path\/$file.xcm";
     unlink $xcmFilename if (-e $xcmFilename);
-    
+
     open my $xcmFile, '>', "$xcmFilename";
     print $xcmFile "data $dataFilename\n";
     print $xcmFile "resp $respFilename\n";
@@ -541,14 +562,14 @@ sub _fitPLBBWithRedshift(){
     print $xcmFile "writefits $paramsFitsFilename\n";
     print $xcmFile "exit\n";
     close $xcmFile;
-    
+
     ### run xspec
     system "xspec - $xcmFilename";
 
     ### finish work
     # delete { } # symbols in output files
-    edit_file { tr/{}//d } $plotDataFilename; 
-    edit_file { tr/#//d } $paramsFilename;   
+    edit_file { tr/{}//d } $plotDataFilename;
+    edit_file { tr/#//d } $paramsFilename;
     system "clear";
     print "\n### Done ###\n";
     print "exported data point: $plotDataFilename \n";
