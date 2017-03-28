@@ -42,7 +42,6 @@ sub get_all_grbs(){
 }
 
 use Scalar::Util qw(looks_like_number);
-
 use HTML::TableExtract;
 sub parse_table(){
   my $html = $_[0];
@@ -51,18 +50,24 @@ sub parse_table(){
   $te = HTML::TableExtract->new( attribs=>{ class=>'grbtable' } );
   $te->parse($html);
   foreach $ts ($te->tables) {
-    print "Table found\n";
+    # print "Table found\n";
     foreach $row ($ts->rows) {
-      print "ROW:\n";
+      # print "ROW:\n";
+      my @linha = ();
       foreach $field (@$row) {
         my $first = (split("\n",$field))[0];
         if (looks_like_number($first)) {
           $field = $first;
         } else {
-          $field =~ s/\n/\;/g;
+          $field =~ s/\n/|/g;
         }
-        print "    field ", $field, "\n";
+        # $field =~ s/([^\000-\200])/sprintf '&#x%X;', ord $1/ge;
+        # $field =~ s/([^\000-\200])/'&#'.ord($1).';'/ge;
+        $field =~ s/([^\000-\200])//ge;
+        $field =~ s/\;/./g;
+        push(@linha,$field);
       }
+      print join (";",@linha), "\n";
     }
   }
 }
