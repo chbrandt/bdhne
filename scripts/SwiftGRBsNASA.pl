@@ -68,12 +68,12 @@ sub parse_table(){
         if (Scalar::Util::looks_like_number($first)) {
           $field = $first;
         } else {
-          $field =~ s/\n/|/g;
+          $field =~ s/\r|\n/|/g;
         }
         # $field =~ s/([^\000-\200])/sprintf '&#x%X;', ord $1/ge;
         # $field =~ s/([^\000-\200])/'&#'.ord($1).';'/ge;
         $field =~ s/[^\000-\200]//g;
-        $field =~ s/\;/./g;
+        $field =~ s/\;/|/g;
         push(@linha,$field);
       }
       if (!@header) {
