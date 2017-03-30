@@ -1,6 +1,10 @@
 #!/usr/bin/env perl
 #-*- coding:utf8 -*-
 
+use strict;
+use warnings;
+use Carp::Assert;
+
 # Tools to query/retrieve Swift-GRBs from NASA website.
 #
 # Swift GRBs data are officially released by the collaboration
@@ -11,7 +15,7 @@
 # Function to retrieve all GRBs table detected by Swift only
 use WWW::Mechanize;
 sub _open_url(){
-  $url = 'https://swift.gsfc.nasa.gov/archive/grb_table/';
+  my $url = 'https://swift.gsfc.nasa.gov/archive/grb_table/';
 
   use WWW::Mechanize;
   my $mech = WWW::Mechanize->new();
@@ -35,40 +39,55 @@ sub get_all_grbs(){
   $mech->tick("uvot_err_radius",1);
 
   use LWP::UserAgent;
-  $ua = LWP::UserAgent->new;
-  $response = $ua->request($form->click);
-  $html = $response->decoded_content();
+  my $ua = LWP::UserAgent->new;
+  my $response = $ua->request($form->click);
+  my $html = $response->decoded_content();
   parse_table($html)
 }
 
-use Scalar::Util qw(looks_like_number);
+use Array::Compare;
+use Scalar::Util;# qw(looks_like_number);
 use HTML::TableExtract;
 sub parse_table(){
   my $html = $_[0];
 
-  use HTML::TableExtract;
-  $te = HTML::TableExtract->new( attribs=>{ class=>'grbtable' } );
+  my $te = HTML::TableExtract->new( attribs=>{ class=>'grbtable' } );
   $te->parse($html);
-  foreach $ts ($te->tables) {
-    # print "Table found\n";
-    foreach $row ($ts->rows) {
-      # print "ROW:\n";
+  assert scalar $te->tables == 1;
+
+  foreach my $ts ($te->tables)
+  {
+    my @header = ();
+    my @table = ();
+    foreach my $row ($ts->rows)
+    {
       my @linha = ();
-      foreach $field (@$row) {
+      foreach my $field (@$row)
+      {
         my $first = (split("\n",$field))[0];
-        if (looks_like_number($first)) {
+        if (Scalar::Util::looks_like_number($first)) {
           $field = $first;
         } else {
           $field =~ s/\n/|/g;
         }
         # $field =~ s/([^\000-\200])/sprintf '&#x%X;', ord $1/ge;
         # $field =~ s/([^\000-\200])/'&#'.ord($1).';'/ge;
-        $field =~ s/([^\000-\200])//ge;
+        $field =~ s/[^\000-\200]//g;
         $field =~ s/\;/./g;
         push(@linha,$field);
       }
-      print join (";",@linha), "\n";
+      if (!@header) {
+        @header = @linha;
+      } elsif ($linha[1] eq $header[1]) {
+        my $comp = Array::Compare->new(WhiteSpace => 0);
+        if ( $comp->compare(\@linha,\@header) )
+        { next; }
+      }
+      # print "@linha\n";
+      push( @table, join (";",@linha) );
     }
+    foreach (@table)
+    { print "$_\n"; }
   }
 }
 
