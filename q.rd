@@ -4,6 +4,13 @@
     <meta name="creationDate">2017-03-20T01:02:03</meta>
     <meta name="description">
         IcraNet Binary-driven HyperNovae catalog
+
+        List of 173 IcraNet Binary-driven Hypernovae (IBdHNe) spanning 12
+        years of Swift/XRT observation. In the table we report important
+        observational features: redshift (z), isotropic energy (E_iso),
+        observing instrument in the gamma-ray band, and correspondent
+        NASA GCN circular from which we take the gamma-ray spectral
+        parameters in order to estimate E_iso.
     </meta>
     <meta name="creation.name">IcraNet</meta>
     <meta name="subject">Catalogs</meta>
@@ -19,9 +26,9 @@
 
     <table id="main" onDisk="True">
 
-        <column name="id" type="text"
+        <column name="GRB" type="text"
             ucd="meta.id;meta.main"
-            description="GRB id"/>
+            description="GRB name"/>
 
         <column name="designation" type="text"
             ucd="meta.id"
@@ -35,7 +42,7 @@
             unit="1e+52 erg" ucd="em.energy"
             description="Isotropic energy"/>
 
-        <column name="Instrument" type="text"
+        <column name="instrument" type="text"
             ucd="instr.tel"
             description="Observing instrument"/>
 
@@ -104,7 +111,7 @@
     <service id="web" allowed="form,static">
         <meta name="shortName">BdHNe</meta>
         <dbCore queriedTable="main" limit="200">
-            <condDesc buildFrom="id"/>
+            <condDesc buildFrom="GRB"/>
             <condDesc buildFrom="z"/>
             <condDesc buildFrom="E_iso"/>
         </dbCore>
