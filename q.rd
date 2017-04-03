@@ -3,7 +3,7 @@
     <meta name="title">IcraNet Binary-driven HyperNovae on GRB catalog</meta>
     <meta name="creationDate">2017-03-20T01:02:03</meta>
     <meta name="description">
-        It is provided a list of 173 GRB events related to binary-driven 
+        It is provided a list of 173 GRB events related to binary-driven
         Hypernovae (IBdHNe) spanning 12 years of Swift/XRT observation.
         In the table we report important
         observational features: redshift (z), isotropic energy (E_iso),
@@ -11,7 +11,7 @@
         NASA GCN circular from which we take the gamma-ray spectral
         parameters in order to estimate E_iso.
     </meta>
-    <meta name="creation.name">IcraNet</meta>
+    <meta name="creator.name">IcraNet</meta>
     <meta name="subject">Catalogs</meta>
     <meta name="subject">Very High Energy</meta>
     <meta name="subject">Gamma-ray</meta>
