@@ -1,12 +1,11 @@
 <resource>
     <schema>bdhne</schema>
-    <meta name="title">BdHNe</meta>
+    <meta name="title">IcraNet Binary-driven HyperNovae on GRB catalog</meta>
     <meta name="creationDate">2017-03-20T01:02:03</meta>
     <meta name="description">
-        IcraNet Binary-driven HyperNovae catalog
-
-        List of 173 IcraNet Binary-driven Hypernovae (IBdHNe) spanning 12
-        years of Swift/XRT observation. In the table we report important
+        It is provided a list of 173 GRB events related to binary-driven 
+        Hypernovae (IBdHNe) spanning 12 years of Swift/XRT observation.
+        In the table we report important
         observational features: redshift (z), isotropic energy (E_iso),
         observing instrument in the gamma-ray band, and correspondent
         NASA GCN circular from which we take the gamma-ray spectral
