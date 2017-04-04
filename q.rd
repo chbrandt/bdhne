@@ -14,7 +14,7 @@
         Positional columns were added to the original (article) table
         to enrich the dataset. All positional and trigger-time were
         taken from Swift GRB table provided by NASA.
-        (https://swift.gsfc.nasa.gov/archive/grb_table/)        
+        (https://swift.gsfc.nasa.gov/archive/grb_table/)
     </meta>
     <meta name="creator.name">IcraNet</meta>
     <meta name="subject">Catalogs</meta>
@@ -54,22 +54,22 @@
             ucd="meta.id"
             description="GCN circular number"/>
 
-        <column name="RA" type="float"
+        <column name="ra" type="real"
             ucd="pos.eq.ra;meta.main"
             unit="deg"
             description="Right Ascension (J2000) (Swift)"/>
 
-        <column name="Dec" type="float"
+        <column name="dec" type="real"
             ucd="pos.eq.dec;meta.main"
             unit="deg"
             description="Declination (J2000) (Swift)"/>
 
-        <column name="error_radius" type="float"
+        <column name="error_radius" type="real"
             ucd="pos.eq;stat.error"
             unit="arcsec"
             description="Error radius (Swift)"/>
 
-        <column name="trigger_time" type="timestamp"
+        <column name="trigger_time" type="text"
             ucd="time.epoch"
             description="GRB trigger epoch (Swift)"/>
 
