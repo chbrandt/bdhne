@@ -10,6 +10,11 @@
         observing instrument in the gamma-ray band, and correspondent
         NASA GCN circular from which we take the gamma-ray spectral
         parameters in order to estimate E_iso.
+
+        Positional columns were added to the original (article) table
+        to enrich the dataset. All positional and trigger-time were
+        taken from Swift GRB table provided by NASA.
+        (https://swift.gsfc.nasa.gov/archive/grb_table/)        
     </meta>
     <meta name="creator.name">IcraNet</meta>
     <meta name="subject">Catalogs</meta>
@@ -48,6 +53,25 @@
         <column name="GCN" type="integer"
             ucd="meta.id"
             description="GCN circular number"/>
+
+        <column name="RA" type="float"
+            ucd="pos.eq.ra;meta.main"
+            unit="deg"
+            description="Right Ascension (J2000) (Swift)"/>
+
+        <column name="Dec" type="float"
+            ucd="pos.eq.dec;meta.main"
+            unit="deg"
+            description="Declination (J2000) (Swift)"/>
+
+        <column name="error_radius" type="float"
+            ucd="pos.eq;stat.error"
+            unit="arcsec"
+            description="Error radius (Swift)"/>
+
+        <column name="trigger_time" type="timestamp"
+            ucd="time.epoch"
+            description="GRB trigger epoch (Swift)"/>
 
 <!--
         <column name="ra" type="double precision"
